@@ -1,0 +1,35 @@
+﻿{
+   "ContextClassName": "HotelContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": null,
+   "ProjectRootNamespace": "Hotel.Entity",
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "Tables": [
+      {
+         "HasPrimaryKey": true,
+         "Name": "[dbo].[Reservations]"
+      },
+      {
+         "HasPrimaryKey": true,
+         "Name": "[dbo].[RoomPrice]"
+      },
+      {
+         "HasPrimaryKey": true,
+         "Name": "[dbo].[RoomTypes]"
+      }
+   ],
+   "UseDatabaseNames": true,
+   "UseDbContextSplitting": false,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseInflector": false,
+   "UseLegacyPluralizer": false,
+   "UseNodaTime": false,
+   "UseSpatial": false,
+   "UseStoredProcedures": false
+}

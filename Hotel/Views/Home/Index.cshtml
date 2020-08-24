@@ -1,0 +1,163 @@
+﻿@model Hotel.WebUI.Models.ReservationViewModel
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.0/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+<style>
+    label {
+        font-weight: 700
+    }
+</style>
+<div class="row" style="display:flex;justify-content:center">
+    <h2>Hotel Reservation</h2>
+</div>
+<br />
+<div class="container-fluid">
+
+    <form class="form-inline" id="reservationForm">
+        <div class="row">
+
+
+            <div class="col-md-2">
+                <label>Check-In</label>
+                @(Html.DevExtreme().DateBox().AccessKey("gtarihi")
+                                         .Type(DateBoxType.Date)
+                                           .Value(DateTime.Now)
+                                           .Min(DateTime.Now)
+                                           .OnValueChanged("checkin_valueChanged")
+                                           .ValidationMessageMode(ValidationMessageMode.Always).ValidationError("Boş gecilemez !")
+                                         .DisplayFormat("dd/MM/yyyy")
+                                          .UseMaskBehavior(true)
+                                          )
+            </div>
+            <div class="col-md-2">
+                <label>Check-out</label>
+                @(Html.DevExtreme().DateBox().AccessKey("dtarihi")
+                                         .Type(DateBoxType.Date)
+                                           .Value(DateTime.Now)
+                                           .Min(DateTime.Now)
+                                           .OnValueChanged("checkout_valueChanged")
+                                           .ValidationMessageMode(ValidationMessageMode.Always).ValidationError("Boş gecilemez !")
+                                         .DisplayFormat("dd/MM/yyyy")
+                                         .UseMaskBehavior(true)
+                                          )
+
+            </div>
+            <div class="col-md-4">
+                <label>Room Type  </label>
+                <select class="form-control" name="roomtype" id="roomtype" style="width:100%">
+                    @foreach (var room in Model.RoomTypes)
+                    {
+                        <option value="@room.id" selected>@room.RoomType ( @room.Bed Bed @room.BedType )</option>
+                    }
+                </select>
+                <div class="col-md-4">
+                    <label>Add Bed</label>
+                    <input id="bed" type="number" class="form-control soyad col-md-12" value="0" name="bed" min="0" max="2">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label>Adult</label>
+                <input id="client" type="number" class="form-control soyad col-md-12" value="1" name="client" min="1">
+            </div>
+            <div class="col-md-2 mt-4">
+                <button type="submit" class="bnt btn-success form-control">Search</button>
+            </div>
+
+        </div>
+    </form>
+
+    <div class="row" id="information" style="display:none">
+        <h4>Reservation information</h4>
+        <hr />
+        <ul>
+        </ul>
+    </div>
+</div>
+<script>
+    var $form = $("#reservationForm");
+    var dateerror = null;
+    var checkinDate;
+    var checkoutDate;
+
+    $form.validate({
+        rules: {
+            client: {
+                minlength: 1,
+                letters: false,
+                required: true
+            },
+            uyruk: { valueNotEqualsUyruk: "-1" },
+
+        },
+        messages: {
+            client: {
+                required: "Bu alan gereklidir.",
+            }
+        },
+        errorPlacement: function (error, element) {
+            var em = element[0].nextElementSibling
+            error.insertAfter(em);
+        }
+    });
+
+    $.validator.addMethod("letters", function (value, element) {
+        return this.optional(element) || value == value.match(/^[a-zA-Z\s öçşiüğiÜĞİŞÇ]*$/);
+    });
+    $.validator.addMethod("valueNotEquals", function (value, element, arg) {
+        return arg !== value;
+    }, "0");
+
+
+    $("#reservationForm").submit((e) => {
+        e.preventDefault()
+        var res = $form.valid()
+        if (res && !dateerror && dateerror != null) {
+
+            data = {
+                RoomTypeId:$("#roomtype :selected").val(),
+                ClientFullName: "Guest",
+                CheckInDate: checkinDate,
+                CheckOutDate: checkoutDate,
+                FranchPad: $("#bed").val()
+            };
+
+            $.post("/home/ReservationInput", { resevations: data }, (res) => {
+                var model = JSON.parse(res)
+
+
+            })
+
+        }
+
+    })
+
+
+    function checkin_valueChanged(data) {
+        checkinDate = data.value
+        if (data.value === "" || data.value === null || data.value === undefined) {
+            dateerror = true;
+            data.component.option("isValid", false);
+        }
+        else {
+            dateerror = false
+        }
+
+    }
+    checkinDate = checkoutDate = new Date()
+    function checkout_valueChanged(data) {
+        checkoutDate = data.value
+        if (data.value === "" || data.value === null || data.value === undefined) {
+            dateerror = true;
+            data.component.option("isValid", false);
+        }
+        else {
+            dateerror = false
+        }
+
+    }
+
+
+
+</script>
