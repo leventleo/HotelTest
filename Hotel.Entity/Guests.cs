@@ -4,17 +4,14 @@ using System.Collections.Generic;
 
 namespace Hotel.Entity
 {
-    public partial class Reservations
+    public partial class Guests
     {
         public int id { get; set; }
-        public int RoomTypeId { get; set; }
+        public string GuestNationalNumber { get; set; }
+        public string GuestFullName { get; set; }
+        public int GuestRoomNumber { get; set; }
         public string ClientNationalNumber { get; set; }
-        public string ClientFullName { get; set; }
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
-        public int? FranchPad { get; set; }
-        public decimal? RoomPrice { get; set; }
-
-        public virtual RoomTypes RoomType { get; set; }
     }
 }

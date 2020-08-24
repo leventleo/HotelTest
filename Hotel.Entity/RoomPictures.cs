@@ -9,5 +9,7 @@ namespace Hotel.Entity
         public int id { get; set; }
         public int? RoomTypeId { get; set; }
         public string Picture { get; set; }
+
+        public virtual RoomTypes RoomType { get; set; }
     }
 }

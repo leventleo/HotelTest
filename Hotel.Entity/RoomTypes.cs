@@ -9,6 +9,7 @@ namespace Hotel.Entity
         public RoomTypes()
         {
             Reservations = new HashSet<Reservations>();
+            RoomPictures = new HashSet<RoomPictures>();
             RoomPrice = new HashSet<RoomPrice>();
         }
 
@@ -18,6 +19,7 @@ namespace Hotel.Entity
         public string BedType { get; set; }
 
         public virtual ICollection<Reservations> Reservations { get; set; }
+        public virtual ICollection<RoomPictures> RoomPictures { get; set; }
         public virtual ICollection<RoomPrice> RoomPrice { get; set; }
     }
 }

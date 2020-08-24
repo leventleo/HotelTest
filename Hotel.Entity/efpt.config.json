@@ -12,6 +12,10 @@
    "Tables": [
       {
          "HasPrimaryKey": true,
+         "Name": "[dbo].[Guests]"
+      },
+      {
+         "HasPrimaryKey": true,
          "Name": "[dbo].[Reservations]"
       },
       {

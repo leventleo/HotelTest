@@ -8,11 +8,20 @@ namespace Hotel.WebUI.Models
 {
     public class ReservationViewModel
     {
-        public List<RoomTypes> RoomTypes { get; set; }
+        public ReservationViewModel()
+        {
+            RoomTypes = new List<RoomViewModel>();
+        }
+        public List<RoomViewModel> RoomTypes { get; set; }
     }
 
     public class RoomViewModel
     {
-        public int RoomType { get; set; }
+        public RoomViewModel()
+        {
+            RoomType = new RoomTypes();
+        }
+        public RoomTypes RoomType { get; set; }
+        public double RoomPrice { get; set; }
     }
 }

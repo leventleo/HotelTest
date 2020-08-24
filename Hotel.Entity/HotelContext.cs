@@ -16,6 +16,7 @@ namespace Hotel.Entity
         {
         }
 
+        public virtual DbSet<Guests> Guests { get; set; }
         public virtual DbSet<Reservations> Reservations { get; set; }
         public virtual DbSet<RoomPictures> RoomPictures { get; set; }
         public virtual DbSet<RoomPrice> RoomPrice { get; set; }
@@ -23,6 +24,30 @@ namespace Hotel.Entity
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Guests>(entity =>
+            {
+                entity.Property(e => e.id).ValueGeneratedNever();
+
+                entity.Property(e => e.CheckInDate).HasColumnType("datetime");
+
+                entity.Property(e => e.CheckOutDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ClientNationalNumber)
+                    .IsRequired()
+                    .HasMaxLength(11)
+                    .IsFixedLength();
+
+                entity.Property(e => e.GuestFullName)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+
+                entity.Property(e => e.GuestNationalNumber)
+                    .IsRequired()
+                    .HasMaxLength(11)
+                    .IsFixedLength();
+            });
+
             modelBuilder.Entity<Reservations>(entity =>
             {
                 entity.Property(e => e.CheckInDate).HasColumnType("datetime");
@@ -34,11 +59,26 @@ namespace Hotel.Entity
                     .HasMaxLength(250)
                     .IsFixedLength();
 
+                entity.Property(e => e.ClientNationalNumber)
+                    .IsRequired()
+                    .HasMaxLength(11)
+                    .IsFixedLength();
+
+                entity.Property(e => e.RoomPrice).HasColumnType("decimal(18, 0)");
+
                 entity.HasOne(d => d.RoomType)
                     .WithMany(p => p.Reservations)
                     .HasForeignKey(d => d.RoomTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Resevations_RoomType");
+            });
+
+            modelBuilder.Entity<RoomPictures>(entity =>
+            {
+                entity.HasOne(d => d.RoomType)
+                    .WithMany(p => p.RoomPictures)
+                    .HasForeignKey(d => d.RoomTypeId)
+                    .HasConstraintName("FK_RoomPictures_RoomTypes");
             });
 
             modelBuilder.Entity<RoomPrice>(entity =>
