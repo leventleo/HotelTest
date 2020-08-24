@@ -15,9 +15,9 @@ namespace Hotel.Entity
             : base(options)
         {
         }
-         
 
         public virtual DbSet<Reservations> Reservations { get; set; }
+        public virtual DbSet<RoomPictures> RoomPictures { get; set; }
         public virtual DbSet<RoomPrice> RoomPrice { get; set; }
         public virtual DbSet<RoomTypes> RoomTypes { get; set; }
 
@@ -57,6 +57,8 @@ namespace Hotel.Entity
 
             modelBuilder.Entity<RoomTypes>(entity =>
             {
+                entity.Property(e => e.BedType).HasMaxLength(50);
+
                 entity.Property(e => e.RoomType).HasMaxLength(100);
             });
 

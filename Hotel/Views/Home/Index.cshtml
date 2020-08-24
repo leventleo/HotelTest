@@ -19,7 +19,7 @@
         <div class="row">
 
 
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label>Check-In</label>
                 @(Html.DevExtreme().DateBox().AccessKey("gtarihi")
                                          .Type(DateBoxType.Date)
@@ -31,11 +31,11 @@
                                           .UseMaskBehavior(true)
                                           )
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label>Check-out</label>
                 @(Html.DevExtreme().DateBox().AccessKey("dtarihi")
                                          .Type(DateBoxType.Date)
-                                           .Value(DateTime.Now)
+                                           .Value(DateTime.Now.AddDays(1))
                                            .Min(DateTime.Now.AddDays(1))
                                            .OnValueChanged("checkout_valueChanged")
                                            .ValidationMessageMode(ValidationMessageMode.Always).ValidationError("Boş gecilemez !")
@@ -44,36 +44,25 @@
                                           )
 
             </div>
-            <div class="col-md-4">
-                <label>Room Type  </label>
-                <select class="form-control" name="roomtype" id="roomtype" style="width:100%">
-                    <option value="0" selected>Oda Tipi Seçiniz</option>
-                    @foreach (var room in Model.RoomTypes)
-                    {
-                        <option value="@room.id">@room.RoomType ( @room.Bed Bed @room.BedType )</option>
-                    }
-                </select>
-                <div>
-                    <label style="justify-content:start">Extra Bed</label>
-                    <input id="bed" type="text" class="form-control" value="0" name="bed" min="0" max="1" readonly>
-                </div>
-            </div>
+            
             <div class="col-md-2">
                 <label>Adult</label>
-                <input id="client" type="number" class="form-control col-md-12" value="1" name="client" min="1" max="3" onchange="ChangePerson();" style="width:100%">
+                <input id="client" type="number" class="form-control" value="1" name="client" min="1" max="3" onchange="ChangePerson();" style="width:100%">
             </div>
-            <div class="col-md-2 mt-4">
-                <button type="submit" class="bnt btn-success form-control">Search</button>
+            <div class="col-md-4 mt-4">
+                <button type="submit" class="bnt btn-success form-control"><i class="fa fa-search" style="margin-right:5px"></i> Search</button>
             </div>
 
         </div>
     </form>
 
     <div class="row" id="information" style="display:none">
-        <h4>Reservation information</h4>
+        <h4>Room information</h4>
+        
         <hr />
-        <ul>
-        </ul>
+       <div class="searchinfo">
+
+       </div>
     </div>
 </div>
 <script>

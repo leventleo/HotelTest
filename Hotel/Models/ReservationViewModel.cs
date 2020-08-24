@@ -10,4 +10,9 @@ namespace Hotel.WebUI.Models
     {
         public List<RoomTypes> RoomTypes { get; set; }
     }
+
+    public class RoomViewModel
+    {
+        public int RoomType { get; set; }
+    }
 }

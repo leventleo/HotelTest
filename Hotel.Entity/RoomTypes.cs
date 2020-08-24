@@ -12,9 +12,9 @@ namespace Hotel.Entity
             RoomPrice = new HashSet<RoomPrice>();
         }
 
-        public int id { get; set; }      
+        public int id { get; set; }
         public string RoomType { get; set; }
-        public int Bed { get; set; }
+        public int? Bed { get; set; }
         public string BedType { get; set; }
 
         public virtual ICollection<Reservations> Reservations { get; set; }

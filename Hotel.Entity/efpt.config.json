@@ -16,6 +16,10 @@
       },
       {
          "HasPrimaryKey": true,
+         "Name": "[dbo].[RoomPictures]"
+      },
+      {
+         "HasPrimaryKey": true,
          "Name": "[dbo].[RoomPrice]"
       },
       {
