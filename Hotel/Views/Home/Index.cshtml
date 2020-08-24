@@ -36,7 +36,7 @@
                 @(Html.DevExtreme().DateBox().AccessKey("dtarihi")
                                          .Type(DateBoxType.Date)
                                            .Value(DateTime.Now)
-                                           .Min(DateTime.Now)
+                                           .Min(DateTime.Now.AddDays(1))
                                            .OnValueChanged("checkout_valueChanged")
                                            .ValidationMessageMode(ValidationMessageMode.Always).ValidationError("Boş gecilemez !")
                                          .DisplayFormat("dd/MM/yyyy")
@@ -47,19 +47,20 @@
             <div class="col-md-4">
                 <label>Room Type  </label>
                 <select class="form-control" name="roomtype" id="roomtype" style="width:100%">
+                    <option value="0" selected>Oda Tipi Seçiniz</option>
                     @foreach (var room in Model.RoomTypes)
                     {
-                        <option value="@room.id" selected>@room.RoomType ( @room.Bed Bed @room.BedType )</option>
+                        <option value="@room.id">@room.RoomType ( @room.Bed Bed @room.BedType )</option>
                     }
                 </select>
-                <div class="col-md-4">
-                    <label>Add Bed</label>
-                    <input id="bed" type="number" class="form-control soyad col-md-12" value="0" name="bed" min="0" max="2">
+                <div>
+                    <label style="justify-content:start">Extra Bed</label>
+                    <input id="bed" type="text" class="form-control" value="0" name="bed" min="0" max="1" readonly>
                 </div>
             </div>
             <div class="col-md-2">
                 <label>Adult</label>
-                <input id="client" type="number" class="form-control soyad col-md-12" value="1" name="client" min="1">
+                <input id="client" type="number" class="form-control col-md-12" value="1" name="client" min="1" max="3" onchange="ChangePerson();" style="width:100%">
             </div>
             <div class="col-md-2 mt-4">
                 <button type="submit" class="bnt btn-success form-control">Search</button>
@@ -88,7 +89,7 @@
                 letters: false,
                 required: true
             },
-            uyruk: { valueNotEqualsUyruk: "-1" },
+          
 
         },
         messages: {
@@ -157,7 +158,16 @@
         }
 
     }
+    function ChangePerson() {
+        var value = $("#client").val()
 
+        if (Number(value) > 2) {
+            $("#bed").val("1")
+        }
+        else {
+            $("#bed").val("0")
+        }
+    }
 
 
 </script>
