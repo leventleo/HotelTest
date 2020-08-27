@@ -28,9 +28,11 @@ namespace Hotel.WebUI
             {
                 options.UseSqlServer(Configuration.GetConnectionString("MyConnection"));
             });
-           
+
             services.AddScoped<DbContext, HotelContext>();
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddMvc(g => g.EnableEndpointRouting = false);
 
         }
@@ -56,7 +58,7 @@ namespace Hotel.WebUI
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-                
+
             });
         }
     }

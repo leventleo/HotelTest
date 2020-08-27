@@ -1,4 +1,6 @@
-﻿
+﻿@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://cdn.jsdelivr.net/jquery.validation/1.15.0/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
@@ -7,6 +9,23 @@
     label {
         font-weight: 700
     }
+    caption {
+        font-weight:600;
+        color:#0094ff;
+        font-size:16px
+    }
+    .tprice {
+        background-color:#ce9df5!important
+
+    }
+
+    .headResvr {
+        padding: 20px;
+        border: 2px solid mediumpurple;
+        border-radius: 10px;
+        background-color: aliceblue;
+    }
+
 </style>
 <div class="row" style="display:flex;justify-content:center">
     <h2>Hotel Reservation</h2>
@@ -15,12 +34,12 @@
 <div class="container-fluid">
 
     <form class="form-inline" id="reservationForm">
-        <div class="row">
+        <div class="row container-fluid headResvr">
 
 
             <div class="col-md-3">
                 <label>Check-In</label>
-                @(Html.DevExtreme().DateBox().AccessKey("gtarihi")
+                @(Html.DevExtreme().DateBox().AccessKey("gtarihi").ID("checkin")
                                          .Type(DateBoxType.Date)
                                            .Value(DateTime.Now)
                                            .Min(DateTime.Now)
@@ -28,11 +47,12 @@
                                            .ValidationMessageMode(ValidationMessageMode.Always).ValidationError("Boş gecilemez !")
                                          .DisplayFormat("dd/MM/yyyy")
                                           .UseMaskBehavior(true)
+                                           .DateSerializationFormat("yyyy-MM-dd")
                                           )
             </div>
             <div class="col-md-3">
                 <label>Check-out</label>
-                @(Html.DevExtreme().DateBox().AccessKey("dtarihi")
+                @(Html.DevExtreme().DateBox().AccessKey("dtarihi").ID("checkout")
                                          .Type(DateBoxType.Date)
                                            .Value(DateTime.Now.AddDays(1))
                                            .Min(DateTime.Now.AddDays(1))
@@ -40,122 +60,117 @@
                                            .ValidationMessageMode(ValidationMessageMode.Always).ValidationError("Boş gecilemez !")
                                          .DisplayFormat("dd/MM/yyyy")
                                          .UseMaskBehavior(true)
+                                         .DateSerializationFormat("yyyy-MM-dd")
                                           )
 
             </div>
-            
+
             <div class="col-md-2">
                 <label>Adult</label>
-                <input id="client" type="number" class="form-control" value="1" name="client" min="1" max="3" onchange="ChangePerson();" style="width:100%">
+                <input id="client" type="number" class="form-control" value="1" name="client" min="1" max="2" onchange="ChangePerson();" style="width:100%">
             </div>
-            <div class="col-md-4 mt-4">
+            <div class="col-md-2">
+                <label>Extra Bed</label>
+                <input id="bed" type="number" class="form-control" value="0" name="bed" min="0" max="1" style="width:100%">
+            </div>
+            <div class="col-md-2 mt-4">
                 <button type="submit" class="bnt btn-success form-control"><i class="fa fa-search" style="margin-right:5px"></i> Search</button>
             </div>
 
         </div>
     </form>
 
-    <div class="row" id="information" style="display:none">
-        <h4>Room information</h4>
-        
+    <div class="row" id="information" style="display:none;margin-top:30px">
+        <h4>Rooms Information</h4>
         <hr />
-       <div class="searchinfo">
+        <span class="rooms container headResvr">
 
-       </div>
+        </span>
     </div>
 </div>
-<script>
-    var $form = $("#reservationForm");
-    var dateerror = null;
-    var checkinDate;
-    var checkoutDate;
 
-    $form.validate({
-        rules: {
-            client: {
-                minlength: 1,
-                letters: false,
-                required: true
-            },
-          
+@section scripts {
+    <script>
 
-        },
-        messages: {
-            client: {
-                required: "Bu alan gereklidir.",
-            }
-        },
-        errorPlacement: function (error, element) {
-            var em = element[0].nextElementSibling
-            error.insertAfter(em);
-        }
-    });
+        var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      
 
-    $.validator.addMethod("letters", function (value, element) {
-        return this.optional(element) || value == value.match(/^[a-zA-Z\s öçşiüğiÜĞİŞÇ]*$/);
-    });
-    $.validator.addMethod("valueNotEquals", function (value, element, arg) {
-        return arg !== value;
-    }, "0");
-
-
-    $("#reservationForm").submit((e) => {
-        e.preventDefault()
-        var res = $form.valid()
-        if (res && !dateerror && dateerror != null) {
+        $("#reservationForm").submit((e) => {
+            e.preventDefault()
+            $(".rooms").empty()
+            var checkinDate = $("#checkin").dxDateBox("instance");
+            var checkoutDate = $("#checkout").dxDateBox("instance");
 
             data = {
-                RoomTypeId:$("#roomtype :selected").val(),
-                ClientFullName: "Guest",
-                CheckInDate: checkinDate,
-                CheckOutDate: checkoutDate,
-                FranchPad: $("#bed").val()
+                CheckInDate: checkinDate.option('value'),
+                CheckOutDate: checkoutDate.option('value'),
+                Client: $("#client").val(),
+                Bed:$("#bed").val()
             };
 
-            $.post("/home/ReservationInput", { resevations: data }, (res) => {
-                var model = JSON.parse(res)
+            $.post("/Home/ReservationInput", { resevations: data }, (res) => {
+                var model = JSON.parse(JSON.stringify(res))
+              
+                console.log(model)
+                $.each(model.roomTypes, (i, item) => {
+                    var totalPrice = 0
+                    var component = `<div class="row"><div class="col-md-4"> <table class="table table-bordered">`
+                    component += `<caption><p>${item.roomType.roomType}</p> <p> ${item.person} Person </p><p>Bed ${item.roomType.bedType}</p><p> ${item.extraBed>0 ? "Extra Bed : 1":""}</p></caption> <thead>`
+                    $.each(item.reservationDays, (index, days) => {
+                        component += `<tr><th>${new Date(days.date).toLocaleDateString()}</th > <th>${days.price} TL</th></tr >`
+                        totalPrice += days.price
+                    })
+                    component += `<tr class="tprice"><th>Total Price</th > <th>${totalPrice} TL</th></tr >`
+                 
+                    component += ` </thead><tbody>`                 
 
+                    component += `</tbody></table></div><div class="col-md-3">
+                                        <img src="/RoomPictures/${item.roomType.roomPictures[0].picture}" style="width:350px" />
+                         <button id="${item.roomType.id}" class="btn btn-outline-success">Reservation</button>
+                    </div></div><hr />`
+
+                    $(".rooms").append(component)
+                    $("#information").show()
+                    
+                })
 
             })
 
+        })
+            function checkin_valueChanged(data) {
+
+                if (data.value === "" || data.value === null || data.value === undefined) {
+                    dateerror = true;
+                    data.component.option("isValid", false);
+                }
+                else {
+                    dateerror = false
+                }
+
+                var d = new Date(data.value).addDays(1)
+
+                $("#checkout").dxDateBox({ min: d, value: d });
+
+            }
+            function checkout_valueChanged(data) {
+
+                if (data.value === "" || data.value === null || data.value === undefined) {
+                    dateerror = true;
+                    data.component.option("isValid", false);
+                }
+                else {
+                    dateerror = false
+                }
+
+            }
+          
+
+        Date.prototype.addDays = function (days) {
+            var date = new Date(this.valueOf());
+            date.setDate(date.getDate() + days);
+            return date;
         }
 
-    })
+    </script>
+}
 
-
-    function checkin_valueChanged(data) {
-        checkinDate = data.value
-        if (data.value === "" || data.value === null || data.value === undefined) {
-            dateerror = true;
-            data.component.option("isValid", false);
-        }
-        else {
-            dateerror = false
-        }
-
-    }
-    checkinDate = checkoutDate = new Date()
-    function checkout_valueChanged(data) {
-        checkoutDate = data.value
-        if (data.value === "" || data.value === null || data.value === undefined) {
-            dateerror = true;
-            data.component.option("isValid", false);
-        }
-        else {
-            dateerror = false
-        }
-
-    }
-    function ChangePerson() {
-        var value = $("#client").val()
-
-        if (Number(value) > 2) {
-            $("#bed").val("1")
-        }
-        else {
-            $("#bed").val("0")
-        }
-    }
-
-
-</script>

@@ -8,7 +8,7 @@ namespace Hotel.Entity
     {
         public int id { get; set; }
         public int? RoomTypeId { get; set; }
-        public decimal? RoomPrice1 { get; set; }
+        public decimal RoomPrice1 { get; set; }
         public DateTime? CreateDate { get; set; }
 
         public virtual RoomTypes RoomType { get; set; }
