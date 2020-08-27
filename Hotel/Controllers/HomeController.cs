@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Hotel.DataAccessLayer.ExtensionMetod;
 using Hotel.Entity;
 using Hotel.WebUI.Models;
 using Microsoft.AspNetCore.Identity;
@@ -29,7 +30,7 @@ namespace Hotel.Controllers
         public JsonResult ReservationInput(RoomSearchInput resevations)
         {
             var checkinDate = resevations.CheckInDate;
-            var checkoutDate = resevations.CheckOutDate;
+            var checkoutDate =Helpers.ChangeTime(resevations.CheckOutDate,14,0,0,0);
             var model = CalculateRooms(checkinDate, checkoutDate, resevations.Client,resevations.Bed);
             return Json(model);
         }
@@ -37,24 +38,26 @@ namespace Hotel.Controllers
         private ReservationViewModel CalculateRooms(DateTime checkinDate, DateTime checkoutDate, int person,int bed)
         {
             if (checkinDate.Year == 1)
-                checkinDate = DateTime.Now;
+                checkinDate =  DateTime.Now;
             if (checkoutDate.Year == 1)
-                checkoutDate = DateTime.Now.AddDays(1);
+                checkoutDate =Helpers.ChangeTime(checkinDate.AddDays(1),14,0,0,0);
 
             var model = new ReservationViewModel();
             var rooms = _roomTypesRepository.TableNoTracking.Include(x => x.RoomPrice).Include(x => x.RoomPictures);
-            int dayCount = (int)checkinDate.Subtract(checkoutDate).TotalDays * -1;
-            var weekends = GetDaysBetween(checkinDate, checkoutDate);
-            int normalDayCount = dayCount - weekends.Count();
+            int  dayCount =(int)Math.Floor(checkoutDate.Subtract(checkinDate).TotalHours /24);
+            var days = GetDaysBetween(checkinDate, checkoutDate);            
+            int normalDayCount = dayCount - days.Count();
             foreach (var item in rooms)
             { 
-                var room = new RoomViewModel();
+                var room = new RoomViewModel();               
                 room.RoomType = item;
                 room.Person = person;
                 room.ExtraBed = person>0 ?bed:0;
-                foreach (var day in weekends)
+
+                foreach (var day in days.Take(days.Count()-1).ToList())
                 {
-                    var roomprice = item.RoomPrice.LastOrDefault().RoomPrice1;
+                   
+                       var roomprice = item.RoomPrice.LastOrDefault().RoomPrice1;
                     if (day.DayOfWeek == DayOfWeek.Friday || day.DayOfWeek == DayOfWeek.Saturday)
                     {
                         if (person == 1)
@@ -95,20 +98,20 @@ namespace Hotel.Controllers
                     }
 
                 }
-
+               
                 model.RoomTypes.Add(room);
             }
 
             return model;
         }
 
-
+       
 
         private IEnumerable<DateTime> GetDaysBetween(DateTime checkInDate, DateTime checkOutDate)
         {
 
             for (DateTime i = checkInDate; i < checkOutDate; i = i.AddDays(1))
-            {
+            { 
                 yield return i;
             }
         }

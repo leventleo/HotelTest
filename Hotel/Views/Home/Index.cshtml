@@ -24,8 +24,20 @@
         border: 2px solid mediumpurple;
         border-radius: 10px;
         background-color: aliceblue;
+        -moz-box-shadow: 2px 2px 3px gray;
+        -webkit-box-shadow: 2px 2px 3px gray;
+        box-shadow: 2px 2px 3px gray;
+    }
+    .purple:hover {
+        background-color:purple!important
+    }
+    .purple:hover {
+        border-color: purple!important
     }
 
+    img {
+        border-radius:5px
+    }
 </style>
 <div class="row" style="display:flex;justify-content:center">
     <h2>Hotel Reservation</h2>
@@ -91,10 +103,7 @@
 
 @section scripts {
     <script>
-
-        var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      
-
+         
         $("#reservationForm").submit((e) => {
             e.preventDefault()
             $(".rooms").empty()
@@ -115,18 +124,18 @@
                 $.each(model.roomTypes, (i, item) => {
                     var totalPrice = 0
                     var component = `<div class="row"><div class="col-md-4"> <table class="table table-bordered">`
-                    component += `<caption><p>${item.roomType.roomType}</p> <p> ${item.person} Person </p><p>Bed ${item.roomType.bedType}</p><p> ${item.extraBed>0 ? "Extra Bed : 1":""}</p></caption> <thead>`
+                    component += `<caption><b>${item.roomType.roomType}  /  ${item.person} Person  /  ${item.roomType.bedType} Bed</b> ${item.extraBed>0 ? "Extra Bed : 1":""}</caption> <thead>`
                     $.each(item.reservationDays, (index, days) => {
                         component += `<tr><th>${new Date(days.date).toLocaleDateString()}</th > <th>${days.price} TL</th></tr >`
                         totalPrice += days.price
                     })
-                    component += `<tr class="tprice"><th>Total Price</th > <th>${totalPrice} TL</th></tr >`
+                    component += `<tr class="tprice"><th>Total Price</th > <th>${Number(totalPrice).toFixed(2)} TL</th></tr >`
                  
                     component += ` </thead><tbody>`                 
 
                     component += `</tbody></table></div><div class="col-md-3">
                                         <img src="/RoomPictures/${item.roomType.roomPictures[0].picture}" style="width:350px" />
-                         <button id="${item.roomType.id}" class="btn btn-outline-success">Reservation</button>
+                         <button id="${item.roomType.id}" class="btn btn-outline-success purple" style="width:350px">Reservation</button>
                     </div></div><hr />`
 
                     $(".rooms").append(component)
