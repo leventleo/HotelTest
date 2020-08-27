@@ -79,7 +79,7 @@
 
             <div class="col-md-2">
                 <label>Adult</label>
-                <input id="client" type="number" class="form-control" value="1" name="client" min="1" max="2" onchange="ChangePerson();" style="width:100%">
+                <input id="client" type="number" class="form-control" value="1" name="client" min="1" max="3" onchange="ChangePerson();" style="width:100%">
             </div>
             <div class="col-md-2">
                 <label>Extra Bed</label>
@@ -124,7 +124,8 @@
                 $.each(model.roomTypes, (i, item) => {
                     var totalPrice = 0
                     var component = `<div class="row"><div class="col-md-4"> <table class="table table-bordered">`
-                    component += `<caption><b>${item.roomType.roomType}  /  ${item.person} Person  /  ${item.roomType.bedType} Bed</b> ${item.extraBed>0 ? "Extra Bed : 1":""}</caption> <thead>`
+                    component += `<caption><b>${item.person} Person  /  ${item.roomType.bedType} Bed</b> ${item.extraBed > 0 ? "Extra Bed : 1" : ""} <br> <button id="${item.roomType.id}" class="btn btn-outline-success purple" style="width:350px">Reservation</button></caption> <thead>`
+                    component += `<tr class="tprice"><th colspan="2">${item.roomType.roomType}</th></tr >`
                     $.each(item.reservationDays, (index, days) => {
                         component += `<tr><th>${new Date(days.date).toLocaleDateString()}</th > <th>${days.price} TL</th></tr >`
                         totalPrice += days.price
@@ -135,7 +136,7 @@
 
                     component += `</tbody></table></div><div class="col-md-3">
                                         <img src="/RoomPictures/${item.roomType.roomPictures[0].picture}" style="width:350px" />
-                         <button id="${item.roomType.id}" class="btn btn-outline-success purple" style="width:350px">Reservation</button>
+                        
                     </div></div><hr />`
 
                     $(".rooms").append(component)
@@ -171,8 +172,18 @@
                     dateerror = false
                 }
 
+        }
+
+        function ChangePerson() {
+            var value = $("#client").val()
+
+            if (Number(value) > 2) {
+                $("#bed").val("1").attr("readonly",true)
             }
-          
+            else {
+                $("#bed").val("0")
+            }
+        }
 
         Date.prototype.addDays = function (days) {
             var date = new Date(this.valueOf());
