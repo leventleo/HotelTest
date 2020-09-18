@@ -2,21 +2,29 @@
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-sweetalert/1.0.1/sweetalert.css" integrity="sha512-f8gN/IhfI+0E9Fc/LKtjVq4ywfhYAVeMGKsECzDUHcFJ5teVwvKTqizm+5a84FINhfrgdvjX8hEJbem2io1iTA==" crossorigin="anonymous" />
 <script src="https://cdn.jsdelivr.net/jquery.validation/1.15.0/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-sweetalert/1.0.1/sweetalert.min.js"></script>
+
 <style>
     label {
         font-weight: 700
     }
-    caption {
-        font-weight:600;
-        color:#0094ff;
-        font-size:16px
-    }
-    .tprice {
-        background-color:#ce9df5!important
 
+    caption {
+        font-weight: 600;
+        color: #0094ff;
+        font-size: 16px
+    }
+
+    .tprice {
+        background-color: #ce9df5 !important
+    }
+
+    .total {
+        background-color: #e8c8f4 !important
     }
 
     .headResvr {
@@ -28,15 +36,23 @@
         -webkit-box-shadow: 2px 2px 3px gray;
         box-shadow: 2px 2px 3px gray;
     }
+
     .purple:hover {
-        background-color:purple!important
+        background-color: purple !important
     }
+
     .purple:hover {
-        border-color: purple!important
+        border-color: purple !important
     }
 
     img {
-        border-radius:5px
+        border-radius: 5px
+    }
+
+    .bestprice {
+        float: right;
+        position: relative;
+        top: -10px
     }
 </style>
 <div class="row" style="display:flex;justify-content:center">
@@ -93,7 +109,7 @@
     </form>
 
     <div class="row" id="information" style="display:none;margin-top:30px">
-        <h4>Rooms Information</h4>
+        <h4>Rooms</h4>
         <hr />
         <span class="rooms container headResvr">
 
@@ -103,7 +119,8 @@
 
 @section scripts {
     <script>
-         
+        var data;
+        var roomType;
         $("#reservationForm").submit((e) => {
             e.preventDefault()
             $(".rooms").empty()
@@ -114,76 +131,115 @@
                 CheckInDate: checkinDate.option('value'),
                 CheckOutDate: checkoutDate.option('value'),
                 Client: $("#client").val(),
-                Bed:$("#bed").val()
+                Bed: $("#bed").val(),
+                RoomType: 0,
+
             };
 
             $.post("/Home/ReservationInput", { resevations: data }, (res) => {
                 var model = JSON.parse(JSON.stringify(res))
-              
                 console.log(model)
+                var count = 0
                 $.each(model.roomTypes, (i, item) => {
                     var totalPrice = 0
-                    var component = `<div class="row"><div class="col-md-4"> <table class="table table-bordered">`
-                    component += `<caption><b>${item.person} Person  /  ${item.roomType.bedType} Bed</b> ${item.extraBed > 0 ? "Extra Bed : 1" : ""} <br> <button id="${item.roomType.id}" class="btn btn-outline-success purple" style="width:350px">Reservation</button></caption> <thead>`
-                    component += `<tr class="tprice"><th colspan="2">${item.roomType.roomType}</th></tr >`
+                    var bestprice;
+                    ++count;
+                    if (count == 1)
+                        bestprice = `<img src="/RoomPictures/bestprice.png"  style="width:75px"/>`
+                    else
+                        bestprice = ""
+
+                    var component = `<div class="row" id=${'div' + item.roomType.id}><div class="col-md-4"> <table class="table table-bordered">`
+                    component += `<caption><b>${item.person} Person  /  ${item.roomType.bedType} Bed ${item.extraBed > 0 ? "Extra Bed : 1" : ""} </b><br> <button   id=${'btn' + item.roomType.id} class="btn btn-outline-success purple" style="width:350px" onclick="ResevationCreate('${item.roomType.id}');">Reservation</button></caption> <thead>`
+                    component += `<tr class="tprice"><th colspan="2">${item.roomType.roomType} <span class="bestprice">${bestprice}</span></th></tr >`
                     $.each(item.reservationDays, (index, days) => {
                         component += `<tr><th>${new Date(days.date).toLocaleDateString()}</th > <th>${days.price} TL</th></tr >`
                         totalPrice += days.price
                     })
-                    component += `<tr class="tprice"><th>Total Price</th > <th>${Number(totalPrice).toFixed(2)} TL</th></tr >`
-                 
-                    component += ` </thead><tbody>`                 
+                    component += `<tr class="total"><th>Total Price</th > <th>${Number(totalPrice).toFixed(2)} TL</th></tr >`
+
+                    component += ` </thead><tbody>`
 
                     component += `</tbody></table></div><div class="col-md-3">
-                                        <img src="/RoomPictures/${item.roomType.roomPictures[0].picture}" style="width:350px" />
-                        
-                    </div></div><hr />`
+                                                <img src="/RoomPictures/${item.roomType.roomPictures[0].picture}" style="width:350px" />
+
+                            </div></div><hr />`
 
                     $(".rooms").append(component)
                     $("#information").show()
-                    
+
                 })
 
             })
 
         })
-            function checkin_valueChanged(data) {
+        function checkin_valueChanged(data) {
 
-                if (data.value === "" || data.value === null || data.value === undefined) {
-                    dateerror = true;
-                    data.component.option("isValid", false);
-                }
-                else {
-                    dateerror = false
-                }
-
-                var d = new Date(data.value).addDays(1)
-
-                $("#checkout").dxDateBox({ min: d, value: d });
-
+            if (data.value === "" || data.value === null || data.value === undefined) {
+                dateerror = true;
+                data.component.option("isValid", false);
             }
-            function checkout_valueChanged(data) {
+            else {
+                dateerror = false
+            }
 
-                if (data.value === "" || data.value === null || data.value === undefined) {
-                    dateerror = true;
-                    data.component.option("isValid", false);
-                }
-                else {
-                    dateerror = false
-                }
+            var d = new Date(data.value).addDays(1)
+
+            $("#checkout").dxDateBox({ min: d, value: d });
 
         }
+        function checkout_valueChanged(data) {
 
+            if (data.value === "" || data.value === null || data.value === undefined) {
+                dateerror = true;
+                data.component.option("isValid", false);
+            }
+            else {
+                dateerror = false
+            }
+
+        }
         function ChangePerson() {
             var value = $("#client").val()
 
             if (Number(value) > 2) {
-                $("#bed").val("1").attr("readonly",true)
+                $("#bed").val("1").attr("readonly", true)
             }
             else {
                 $("#bed").val("0")
             }
         }
+        function ResevationCreate(e) {
+            $("#ReservationModal").modal("show")
+            var selectedRoom = $("#div" + e).html()
+            $(".selectedroom").html(selectedRoom)
+            $(".selectedroom #btn" + e).hide()
+            roomType = e
+        }
+
+        $("#ReserveForm").submit((e) => {
+            e.preventDefault()
+            if ($("#ReserveForm").valid()) {
+                data.RoomType = roomType
+                var dataClient = {
+                    Name: $("#name").val(),
+                    Surname: $("#surname").val(),
+                    Phone: $("#phone").val(),
+                    Email: $("#email").val(),
+                }
+                $.post("/Home/Reserved", { resevations: data, client: dataClient }, (res) => {
+
+                    if (res) {
+                        $("#ReservationModal").modal("hide")
+                        swal("Good job!", "Your reservation request has been received. Reservation Number:145656654", "success")
+                    }
+
+                })
+            }
+            else {
+                return false
+            }
+        })
 
         Date.prototype.addDays = function (days) {
             var date = new Date(this.valueOf());
@@ -193,4 +249,60 @@
 
     </script>
 }
+
+
+<div class="modal" tabindex="-1" role="dialog" id="ReservationModal">
+    <div class="modal-dialog-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reservation Form</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row selectedroom">
+
+                </div>
+                <form id="ReserveForm">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" class="form-control" required id="name" name="name" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Surname</label>
+                                <input type="text" class="form-control" required id="surname" name="surname" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" class="form-control" required id="phone" name="phone" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>EMail</label>
+                                <input type="email" class="form-control" required id="email" name="email" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Reserve</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
 
